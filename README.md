@@ -28,10 +28,4 @@ A mobile-friendly web app that automates human-like searches on Bing to help wit
 ---
 
 ## 📦 Installation
-
- Use Live (No Setup)
-
-> [🔗 Open Live App on Netlify](https://your-netlify-link.netlify.app)  
-> or  
-> [🔗 Open Live App on GitHub Pages](https://yourusername.github.io/bing-auto-typer-pro/)
-
+](https://phoenix1769.github.io/bing-auto-typer-pro/)
