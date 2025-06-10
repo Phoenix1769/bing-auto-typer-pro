@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bing AutoTyper Pro</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body class="dark">
+
+<h2>🌐 Bing AutoTyper Pro</h2>
+
+<label for="termsBox">Search terms (one per line):</label>
+<textarea id="termsBox" rows="8" aria-label="Search terms">
+basketball drills
+bing rewards
+how to grow taller
+</textarea>
+
+<div class="control-row">
+  <button id="startBtn" onclick="startSearch()">▶ Start</button>
+  <button id="pauseBtn" onclick="pauseSearch()" disabled>⏸ Pause</button>
+  <button id="stopBtn" onclick="stopSearch()" disabled>⛔ Stop</button>
+  <button id="themeBtn" onclick="toggleTheme()">🌙 Toggle Theme</button>
+</div>
+
+<div id="progressBar" aria-label="Search progress">
+  <div id="progressInner"></div>
+</div>
+<p id="statusText" role="status" aria-live="polite">Idle</p>
+
+<script>
+  let terms = [];
+  let currentIndex = 0;
+  let isPaused = false;
+  let isStopped = true; // start stopped
+  let darkMode = true;
+
+  const startBtn = document.getElementById("startBtn");
+  const pauseBtn = document.getElementById("pauseBtn");
+  const stopBtn = document.getElementById("stopBtn");
+  const statusText = document.getElementById("statusText");
+  const progressInner = document.getElementById("progressInner");
+  const themeBtn = document.getElementById("themeBtn");
+
+  function updateProgress(percent) {
+    progressInner.style.width = percent + "%";
+  }
+
+  function updateStatus(text) {
+    statusText.textContent = text;
+  }
+
+  function humanTypeAndSearch(term, callback) {
+    const searchUrl = "https://www.bing.com/search?q=";
+    let query = "";
+    let i = 0;
+
+    function typeChar() {
+      if (i >= term.length) {
+        setTimeout(() => {
+          // open search in new tab
+          window.open(searchUrl + encodeURIComponent(term), "_blank");
+          callback();
+        }, 400 + Math.random() * 600);
+        return;
+      }
+
+      query += term[i];
+      updateStatus("Typing: " + query);
+      i++;
+
+      setTimeout(typeChar, 90 + Math.random() * 100);
+    }
+
+    typeChar();
+  }
+
+  function startSearch() {
+    if (isStopped) {
+      terms = document.getElementById("termsBox").value.split("\n").map(t => t.trim()).filter(t => t);
+      currentIndex = 0;
+      isStopped = false;
+      isPaused = false;
+
+      if (terms.length === 0) {
+        updateStatus("⚠️ Please enter search terms.");
+        return;
+      }
+
+      pauseBtn.disabled = false;
+      stopBtn.disabled = false;
+      startBtn.disabled = true;
+    }
+
+    if (currentIndex >= terms.length || isStopped) {
+      updateStatus("✅ All done!");
+      updateProgress(100);
+      pauseBtn.disabled = true;
+      stopBtn.disabled = true;
+      startBtn.disabled = false;
+      return;
+    }
+
+    if (isPaused) {
+      updateStatus("⏸ Paused...");
+      return;
+    }
+
+    const term = terms[currentIndex];
+    updateStatus("Searching: " + term);
+
+    humanTypeAndSearch(term, () => {
+      currentIndex++;
+      const percent = Math.round((currentIndex / terms.length) * 100);
+      updateProgress(percent);
+
+      setTimeout(startSearch, 3000 + Math.random() * 2000);
+    });
+  }
+
+  function pauseSearch() {
+    if (isStopped) return;
+    isPaused = !isPaused;
+    updateStatus(isPaused ? "⏸ Paused..." : "▶ Resumed");
+    if (!isPaused) startSearch();
+  }
+
+  function stopSearch() {
+    if (isStopped) return;
+    isStopped = true;
+    isPaused = false;
+    updateStatus("⛔ Stopped.");
+    updateProgress(0);
+    currentIndex = 0;
+
+    startBtn.disabled = false;
+    pauseBtn.disabled = true;
+    stopBtn.disabled = true;
+  }
+
+  function toggleTheme() {
+    darkMode = !darkMode;
+    document.body.classList.toggle("light", !darkMode);
+    themeBtn.textContent = darkMode ? "🌙 Toggle Theme" : "☀️ Toggle Theme";
+  }
+</script>
+
+</body>
+</html>
