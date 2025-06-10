@@ -1,0 +1,1 @@
+# bing-auto-typer-pro
